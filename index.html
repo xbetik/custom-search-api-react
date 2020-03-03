@@ -1,0 +1,80 @@
+<html>
+<head>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <title>JSON Custom Search API Example</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="controlPanel">
+        <input id="searchInput" type="text" placeholder="Search..">
+        <button type="button" onClick=search()>Search</button>
+    </div>
+
+    <div class="column">
+        <div id="images-container" class="images">Image Result</div>
+    </div>
+
+
+    <div class="column">
+        <div id="pages-container" class="pages">Web Result
+            <ul id="pages-list" class="list"></ul>
+            <ul class="pagination"></ul>
+        </div>
+    </div>
+
+    <script>
+    const key = 'AIzaSyArSa5yuJRo9-FPUXnTGiu0GIIFt3uLJyk';
+    const searchEngineId = '004107311362073572255:fhevtij04ds';
+    const searchImages = 'searchType=image';
+    const url = 'https://www.googleapis.com/customsearch/v1?key=';
+
+    const getQueryName = () => {
+        return document.getElementById('searchInput').value;
+    };
+
+    const search = () => {
+        query = getQueryName();
+        let images = document.createElement("script");
+        let pages = document.createElement("script");
+        images.src = 'https://www.googleapis.com/customsearch/v1?key=' + key + '&cx=' + searchEngineId + '&q=' + query + '&callback=addImages&' + searchImages;
+        document.body.appendChild(images);
+        pages.src = 'https://www.googleapis.com/customsearch/v1?key=' + key + '&cx=' + searchEngineId + '&q=' + query + '&callback=addPages';
+        document.body.appendChild(pages);
+    };
+
+    const addImages = (response) => {
+        for (let i=0; i<response.items.length; i++) {
+            let image = document.createElement("img");
+            image.src = response.items[i].link;
+            image.className = "image";
+            document.getElementById('images-container').appendChild(image);
+        }
+    };
+
+    const addPages = (response) => {
+        console.log(response);
+        for (let i=0; i<response.items.length; i++) {
+            let item = document.createElement('li');
+            let page = document.createElement("p");
+            page.innerHTML = response.items[i].title;
+            page.className = 'name';
+            item.appendChild(page);
+
+            let url = document.createElement('a');
+            let link = document.createTextNode(response.items[i].formattedUrl);
+            url.title = response.items[i].formattedUrl;
+            url.href = response.items[i].formattedUrl;
+            url.appendChild(link);
+            item.appendChild(url);
+
+            let text = document.createElement("p");
+            text.innerHTML = response.items[i].snippet;
+            item.appendChild(text);
+
+            document.getElementById('pages-list').appendChild(item);
+        }
+        var listOfPages = new List('pages-container', { page: 4, pagination: true });
+    }
+</script>
+</body>
+</html>
