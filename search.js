@@ -1,63 +1,81 @@
 'use strict';
-const key = 'AIzaSyArSa5yuJRo9-FPUXnTGiu0GIIFt3uLJyk';
-const searchEngineId = '004107311362073572255:fhevtij04ds';
-const searchImages = 'searchType=image';
-const url = 'https://www.googleapis.com/customsearch/v1?key=';
+const API_KEY = 'AIzaSyArSa5yuJRo9-FPUXnTGiu0GIIFt3uLJyk';
+const API_ID = '004107311362073572255:fhevtij04ds';
+const API_URL = 'https://www.googleapis.com/customsearch/v1';
+const API_IMAGES = 'searchType=image';
 
-const checkEnterPressed = (event) => {
+function checkEnterPressed(event) {
     if (event.keyCode === 13) {
         search();
     }
-};
+}
 
-const search = () => {
+function search() {
+    document.getElementsByClassName('image').remove();
+    document.getElementsByClassName('page-list-items').remove();
+    updateResults();
+}
+
+function updateResults() {
     let query = document.getElementById('searchInput').value;
+    fetch(API_URL + '?q=' + query + '&cx=' + API_ID + '&key=' + API_KEY + '&' + API_IMAGES)
+      .then((response) => {
+          return response.json();
+      })
+      .then((data) => {
+          updateImageResults(data)
+      });
+    fetch(API_URL + '?q=' + query + '&cx=' + API_ID + '&key=' + API_KEY)
+      .then((response) => {
+          return response.json();
+      })
+      .then((data) => {
+          updatePageResults(data)
+      });
+}
 
-    let images = document.createElement("script");
-    images.src = url + key + '&cx=' + searchEngineId + '&q=' + query + '&callback=addImages&' + searchImages;
-    document.body.appendChild(images);
-
-    let pages = document.createElement("script");
-    pages.src = url + key + '&cx=' + searchEngineId + '&q=' + query + '&callback=addPages';
-    document.body.appendChild(pages);
-};
-
-const addImages = (response) => {
-    for (let i=0; i<response.items.length; i++) {
-        let link = response.items[i].link;
-
-        let imageLink = document.createElement('a');
-        imageLink.href = link;
-        imageLink.target = "_blank";
-
+function updateImageResults(data) {
+    data.items.forEach(item => {
         let image = document.createElement("img");
-        image.src = link;
+        image.src = item.link;
         image.className = "image";
-        imageLink.appendChild(image);
-        document.getElementById('images-container').appendChild(imageLink);
-    }
-};
+        document.getElementById('images-container').appendChild(image);
+    })
+}
 
-const addPages = (response) => {
-    for (let i=0; i<response.items.length; i++) {
-        let item = document.createElement('li');
+function updatePageResults(data){
+    data.items.forEach(item => {
+        let pageListItem = document.createElement('li');
+        pageListItem.className = "page-list-items";
         let page = document.createElement("p");
-        page.innerHTML = '<b>' + response.items[i].title + '</b>';
-        page.className = 'name';
-        item.appendChild(page);
+        page.innerHTML = '<b>' + item.title + '</b>';
+        pageListItem.appendChild(page);
 
         let url = document.createElement('a');
-        let link = document.createTextNode(response.items[i].formattedUrl);
-        url.title = response.items[i].formattedUrl;
-        url.href = response.items[i].formattedUrl;
+        let link = document.createTextNode(item.formattedUrl);
+        url.title = item.formattedUrl;
+        url.href = item.formattedUrl;
         url.appendChild(link);
-        item.appendChild(url);
+        pageListItem.appendChild(url);
 
         let text = document.createElement("p");
-        text.innerHTML = response.items[i].snippet;
-        item.appendChild(text);
+        text.innerHTML = item.snippet;
+        pageListItem.appendChild(text);
 
-        document.getElementById('pages-list').appendChild(item);
-    }
+        document.getElementById('pages-list').appendChild(pageListItem);
+    });
     new List('pages-container', { page: 5, pagination: true });
+}
+
+Element.prototype.remove = function() {
+    this.parentElement.removeChild(this);
 };
+
+NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
+    for(var i = this.length - 1; i >= 0; i--) {
+        if(this[i] && this[i].parentElement) {
+            this[i].parentElement.removeChild(this[i]);
+        }
+    }
+};
+

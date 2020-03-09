@@ -2,21 +2,25 @@
     box-sizing: border-box;
 }
 
+.result-container {
+    margin: auto;
+}
+
 .controlPanel {
     text-align: center;
 }
 
 #searchInput {
+    width: 80%;
     padding: 15px;
-    width:69%;
     background: #f1f1f1;
     border: 1px solid grey;
     font-size: 20px;
 }
 
 .controlPanel button {
+    width: 15%;
     padding: 15px;
-    width:20%;
     background: #2196F3;
     font-size: 20px;
     color: white;
@@ -39,7 +43,7 @@
 #images-container, #pages-container {
     border: 2px solid lightgrey;
     border-radius: 5px;
-    width: 750px;
+    width: 700px;
     height: 700px;
     margin: auto;
     overflow: auto;
